@@ -7,7 +7,7 @@ pipeline {
 
     tools {
         maven 'maven-3.8.1' // Для сборки бэкенда нужен Maven
-        jdk 'jdk16' // И Java Developer Kit нужной версии
+//         jdk 'jdk16' // И Java Developer Kit нужной версии
         nodejs 'node-16' // А NodeJS нужен для фронта
     }
 
@@ -16,12 +16,14 @@ pipeline {
             steps {
                 dir("backend") { // Переходим в папку backend
                     sh 'mvn package' // Собираем мавеном бэкенд
+                    sh 'echo "Собрали backend"'
                 }
             }
 
             post {
                 success {
                     junit 'backend/target/surefire-reports/**/*.xml' // Передадим результаты тестов в Jenkins
+                    sh 'echo "Передадим результаты тестов в Jenkins"'
                 }
             }
         }
@@ -31,6 +33,7 @@ pipeline {
                 dir("frontend") {
                     sh 'npm install' // Для фронта сначала загрузим все сторонние зависимости
                     sh 'npm run build' // Запустим сборку
+                    sh 'echo "Собрали frontend"'
                 }
             }
         }
@@ -39,6 +42,7 @@ pipeline {
             steps {
                 archiveArtifacts(artifacts: 'backend/target/sausage-store-0.0.1-SNAPSHOT.jar')
                 archiveArtifacts(artifacts: 'frontend/dist/frontend/*')
+                 sh 'echo "Сохранили артефакты"'
             }
         }
     }
