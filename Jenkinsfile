@@ -49,12 +49,9 @@ pipeline {
 
              post {
                     success {
-                        sh "curl --location 'https://api.telegram.org/bot5933756043:AAE8JLL5KIzgrNBeTP5e-1bkbJy4YRoeGjs/sendMessage' \
-                            --header 'Content-Type: application/json' \
-                            --data '{
-                                \"chat_id\": \"-1002007326342\",
-                                \"text\": \"Игорь Тютюнов собрал приложение.\"
-                            }'"
+                        sh 'curl --location \'https://api.telegram.org/bot5933756043:AAE8JLL5KIzgrNBeTP5e-1bkbJy4YRoeGjs/sendMessage\' \
+                            --header \'Content-Type: application/json\' \
+                            --data \'{"chat_id": "-1002007326342","text": "Игорь Тютюнов собрал приложение."}\''
                     }
                 }
         }
