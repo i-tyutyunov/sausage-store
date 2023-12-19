@@ -1,0 +1,36 @@
+stages:
+  - build
+  - notify
+
+
+build-frontend-code-job:
+  stage: build
+  only:
+    changes:
+      - frontend/*
+  script:
+    - cd frontend
+    - npm install
+    - npm run build
+  before_script:
+    - echo "BUILD_CI_JOB_ID=$CI_JOB_ID" > frontend_build.env
+  artifacts:
+    paths:
+      - frontend/dist/frontend
+    reports:
+      dotenv:
+        - frontend_build.env
+
+telegram-notification-frontend:
+  stage: notify
+  only:
+    changes:
+      - frontend/*
+    variables:
+      - $CI_COMMIT_TITLE =~ /send notification/
+  script:
+    - |
+      curl --location "https://api.telegram.org/bot5933756043:AAE8JLL5KIzgrNBeTP5e-1bkbJy4YRoeGjs/sendMessage" \
+      --header "Content-Type: application/json" \
+      --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Игорь Тютюнов собрал frontend. URL для скачивания артефактов
+      $CI_PROJECT_URL/-/jobs/$BUILD_CI_JOB_ID/artifacts/download\"}"
