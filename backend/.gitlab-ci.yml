@@ -15,7 +15,7 @@ build-backend-code-job:
     - echo "BUILD_CI_JOB_ID=$CI_JOB_ID" > backend_build.env
   artifacts:
     paths:
-      - backend/target/*.jar
+      - backend/target/sausage-store-0.0.1-SNAPSHOT.jar
     reports:
       dotenv: backend_build.env
 
