@@ -6,9 +6,6 @@ stages:
 
 build-backend-code-job:
   stage: build
-  only:
-    changes:
-      - backend/*
   script:
     - cd backend
     - mvn package
