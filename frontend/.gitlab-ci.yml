@@ -1,13 +1,11 @@
 stages:
   - build
+  - test
   - notify
 
 
 build-frontend-code-job:
   stage: build
-  only:
-    changes:
-      - frontend/*
   script:
     - cd frontend
     - npm install
@@ -20,6 +18,15 @@ build-frontend-code-job:
     reports:
       dotenv:
         - frontend_build.env
+
+sonar-scanner-frontend-job:
+  stage: test
+  script:
+    - sonar-scanner \
+        -Dsonar.projectKey=75_IGORTYUTYUNOV_BACKEND \
+        -Dsonar.sources=. \
+        -Dsonar.host.url=https://sonarqube.praktikum-services.ru \
+        -Dsonar.login=$FRONTEND_SQ_TOKEN
 
 telegram-notification-frontend:
   stage: notify
