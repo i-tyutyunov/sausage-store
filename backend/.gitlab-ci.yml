@@ -20,6 +20,8 @@ build-backend-code-job:
 sonar-scanner-backend-job:
   stage: test
   script:
+    - cd backend
+    - mvn package
     - mvn sonar:sonar \
       -Dsonar.projectKey=75_IGORTYUTYUNOV_BACKEND \
       -Dsonar.host.url=https://sonarqube.praktikum-services.ru \
