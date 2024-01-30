@@ -20,7 +20,6 @@ build-backend-code-job:
   artifacts:
     paths:
       - backend/target/sausage-store-0.0.1-SNAPSHOT.jar
-      - .m2/repository/*
     reports:
       dotenv: backend_build.env
 
@@ -65,3 +64,18 @@ telegram-notification-backend:
       --header "Content-Type: application/json" \
       --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Игорь Тютюнов собрал backend. URL для скачивания артефактов
       $CI_PROJECT_URL/-/jobs/$BUILD_CI_JOB_ID/artifacts/download\"}"
+
+upload-backend-release:
+  stage: release
+  only:
+    changes:
+      - backend/**/*
+  needs:
+    - build-backend-code-job
+  script:
+    - cd backend
+    - >
+      mvn deploy -DskipTests 
+      -Dmaven.repo.local=${CI_PROJECT_DIR}/.m2/repository 
+      -s settings.xml 
+      -Dversion.application=${VERSION}
