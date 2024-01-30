@@ -57,3 +57,18 @@ telegram-notification-frontend:
       --header "Content-Type: application/json" \
       --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Игорь Тютюнов собрал frontend. URL для скачивания артефактов
       $CI_PROJECT_URL/-/jobs/$BUILD_CI_JOB_ID/artifacts/download\"}"
+
+
+upload-frontend-release:
+  stage: release
+  only:
+    changes:
+      - frontend/**/*
+  needs:
+    - build-frontend-code-job
+  script:
+    - cd frontend/dist
+    - tar czvf sausage-store-${VERSION}.tar.gz frontend
+    - >
+      curl -v -u "${NEXUS_REPO_USER}:${NEXUS_REPO_PASS}" 
+      -T sausage-store-${VERSION}.tar.gz ${NEXUS_REPO_URL}/repository/${NEXUS_REPO_FRONTEND_NAME}/${VERSION}/
