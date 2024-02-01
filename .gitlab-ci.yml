@@ -1,11 +1,22 @@
-variables:
-  VERSION: 1.0.${CI_PIPELINE_ID}
-include:
-  - '/backend/.gitlab-ci.yml'
-  - '/frontend/.gitlab-ci.yml'
-
 stages:
-  - build
-  - test
-  - notify
-  - release
+  - module-pipelines
+
+backend:
+  stage: module-pipelines
+  trigger:
+    include:
+      - local: backend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - backend/**/*
+
+frontend:
+  stage: module-pipelines
+  trigger:
+    include:
+      - local: frontend/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - changes:
+        - frontend/**/*

@@ -1,4 +1,13 @@
-build-frontend-code-job:
+variables:
+  VERSION: 1.0.${CI_PIPELINE_ID}
+
+stages:
+  - build
+  - release
+  - deploy
+  - notify
+
+build:
   stage: build
   cache:
     - key:
@@ -6,48 +15,43 @@ build-frontend-code-job:
           - frontend/package.json
       paths:
         - ${CI_PROJECT_DIR}/frontend/node_modules
-  rules:
-    - changes:
-      - frontend/**/*
   script:
     - cd frontend
     - npm install
     - npm run build
   before_script:
-    - echo "BUILD_CI_JOB_ID=$CI_JOB_ID" > frontend_build.env
+    - export BUILD_CI_JOB_ID=$CI_JOB_ID
   artifacts:
     paths:
       - frontend/dist/frontend
-    reports:
-      dotenv:
-        - frontend_build.env
 
-telegram-notification-frontend:
-  stage: notify
-  needs:
-    - build-frontend-code-job
-  rules:
-    - changes:
-      - frontend/**/*
-      if: $CI_COMMIT_TITLE =~ /send notification/
-  script:
-    - |
-      curl --location "https://api.telegram.org/bot5933756043:AAE8JLL5KIzgrNBeTP5e-1bkbJy4YRoeGjs/sendMessage" \
-      --header "Content-Type: application/json" \
-      --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Игорь Тютюнов собрал frontend. URL для скачивания артефактов
-      $CI_PROJECT_URL/-/jobs/$BUILD_CI_JOB_ID/artifacts/download\"}"
-
-
-upload-frontend-release:
+release:
   stage: release
-  only:
-    changes:
-      - frontend/**/*
   needs:
-    - build-frontend-code-job
+    - build
   script:
     - cd frontend/dist
     - tar czvf sausage-store-${VERSION}.tar.gz frontend
     - >
       curl -v -u "${NEXUS_REPO_USER}:${NEXUS_REPO_PASS}" 
       -T sausage-store-${VERSION}.tar.gz ${NEXUS_REPO_URL}/repository/${NEXUS_REPO_FRONTEND_NAME}/${VERSION}/
+
+deploy:
+  stage: deploy
+  needs:
+   - release
+  script:
+    - echo "Типа выполнили deploy фронта"
+
+notify:
+  stage: deploy
+  needs:
+    - build
+  rules:
+    - if: $CI_COMMIT_TITLE =~ /send notification/
+  script:
+    - |
+      curl --location "https://api.telegram.org/bot5933756043:AAE8JLL5KIzgrNBeTP5e-1bkbJy4YRoeGjs/sendMessage" \
+      --header "Content-Type: application/json" \
+      --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Выполнен deploy frontend-а. URL для скачивания артефактов
+      $CI_PROJECT_URL/-/jobs/$BUILD_CI_JOB_ID/artifacts/download\"}"
