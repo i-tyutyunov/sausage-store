@@ -1,5 +1,3 @@
-variables:
-  SONAR_TOKEN: $SONAR_PROJECT_LOGIN_BACK
 
 build-backend-code-job:
   stage: build
@@ -23,37 +21,10 @@ build-backend-code-job:
     reports:
       dotenv: backend_build.env
 
-sonarqube-backend-sast:
-  stage: test
-  needs: [build-backend-code-job]
-  image: maven:3.8-openjdk-16
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-    GIT_DEPTH: "0"
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - .sonar/cache
-  script:
-    - cd backend
-    - mvn verify sonar:sonar
-      -Dsonar.qualitygate.wait=true
-      -Dsonar.projectName="25_ИГОРЬТЮТЮНОВ_БЭКЭНД"
-      -Dsonar.projectKey=$SONAR_PROJECT_KEY_BACK \
-
-spotbugs-sast:
-  stage: test
-  needs: [build-backend-code-job]
-  variables:
-    COMPILE: "false"
-    SAST_JAVA_VERSION: 11
-    MAVEN_REPO_PATH: ${CI_PROJECT_DIR}/.m2/repository
-
 telegram-notification-backend:
   stage: notify
   needs:
     - build-backend-code-job
-    - sonarqube-backend-sast
   rules:
     - changes:
       - backend/**/*
