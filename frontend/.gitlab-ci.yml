@@ -40,8 +40,19 @@ deploy:
   stage: deploy
   needs:
    - release
+   - build
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan std-025-84.praktikum-services.tech > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
-    - echo "Типа выполнили deploy фронта"
+    - cd frontend
+    - ls
 
 notify:
   stage: deploy
