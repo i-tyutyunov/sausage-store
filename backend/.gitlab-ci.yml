@@ -74,6 +74,7 @@ deploy:
   stage: deploy
   needs:
     - release
+    - test
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
@@ -84,6 +85,7 @@ deploy:
     - ssh-keyscan $ENV_HOST > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
+    - scp ./backend/sausage-store-backend.service $ENV_USER@$ENV_HOST:/home/$ENV_USER/sausage-store-backend.service
     - > 
       ssh $ENV_USER@$ENV_HOST
       "export "CURRENT_VERSION=${VERSION}"; 
