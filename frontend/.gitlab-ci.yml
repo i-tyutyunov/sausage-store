@@ -54,7 +54,6 @@ release:
   stage: release
   needs:
     - build
-    - test
   script:
     - cd frontend/dist
     - tar czvf sausage-store-${VERSION}.tar.gz frontend
