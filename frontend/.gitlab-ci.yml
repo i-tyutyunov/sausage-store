@@ -40,7 +40,6 @@ deploy:
   stage: deploy
   needs:
    - release
-   - build
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
@@ -51,8 +50,16 @@ deploy:
     - ssh-keyscan std-025-84.praktikum-services.tech > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
-    - cd frontend
-    - ls
+    - ssh student@std-025-84.praktikum-services.tech
+      "export "CURRENT_VERSION=${VERSION}";
+      export "VERSION=${VERSION}";
+      export "DEV_HOST=${DEV_HOST}";
+      export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
+      export "NEXUS_REPO_FRONTEND_NAME=${NEXUS_REPO_FRONTEND_NAME}";
+      export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
+      export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
+      /bin/bash -s " < ./frontend/deploy.sh
+
 
 notify:
   stage: deploy
