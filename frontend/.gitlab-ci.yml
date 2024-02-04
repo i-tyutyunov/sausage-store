@@ -50,10 +50,8 @@ deploy:
     - ssh-keyscan std-025-84.praktikum-services.tech > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
-    - ssh student@std-025-84.praktikum-services.tech
-      "export "CURRENT_VERSION=${VERSION}";
-      export "VERSION=${VERSION}";
-      export "DEV_HOST=${DEV_HOST}";
+    - ssh $ENV_USER@$ENV_HOST
+      "export "VERSION=${VERSION}";
       export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
       export "NEXUS_REPO_FRONTEND_NAME=${NEXUS_REPO_FRONTEND_NAME}";
       export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
