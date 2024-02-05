@@ -96,14 +96,13 @@ deploy:
       /bin/bash -s " < ./backend/deploy.sh
 
 notify:
-  stage: deploy
-  needs:
-    - build
+  stage: notify
+  needs: [build, deploy]
   rules:
     - if: $CI_COMMIT_TITLE =~ /send notification/
   script:
     - |
-      curl --location "https://api.telegram.org/bot5933756043:AAE8JLL5KIzgrNBeTP5e-1bkbJy4YRoeGjs/sendMessage" \
+      curl --location "https://api.telegram.org/$TG_USER:$TG_PASSWORD/sendMessage" \
       --header "Content-Type: application/json" \
       --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Выполнен deploy backend-а. URL для скачивания 
       артефактов
