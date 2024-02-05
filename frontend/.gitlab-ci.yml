@@ -96,5 +96,5 @@ notify:
     - |
       curl --location "https://api.telegram.org/$TG_USER:$TG_PASSWORD/sendMessage" \
       --header "Content-Type: application/json" \
-      --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Выполнен deploy frontend-а. URL для скачивания артефактов
+      --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Выполнен deploy frontend-а.... URL для скачивания артефактов
       $CI_PROJECT_URL/-/jobs/$BUILD_CI_JOB_ID/artifacts/download\"}"
