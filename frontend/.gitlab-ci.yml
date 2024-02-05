@@ -65,6 +65,11 @@ deploy:
   stage: deploy
   needs:
    - release
+  environment:
+    name: frontend
+    url: https://std-025-84.praktikum-services.tech
+  rules:
+    - when: manual
   before_script:
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)

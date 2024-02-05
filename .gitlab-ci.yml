@@ -10,9 +10,6 @@ backend:
   rules:
     - changes:
         - backend/**/*
-  environment:
-    name: backend
-    url: https://std-025-84.praktikum-services.tech
 
 frontend:
   stage: module-pipelines
@@ -23,6 +20,3 @@ frontend:
   rules:
     - changes:
         - frontend/**/*
-  environment:
-    name: frontend
-    url: https://std-025-84.praktikum-services.tech
