@@ -1,6 +1,6 @@
 # /bin/bash
 set -xe
-
+export PSQL_USER="std-025-75"
 sudo cp -rf sausage-store-backend.service /etc/systemd/system/sausage-store-backend.service
 
 cd /opt/sausage-store/bin
