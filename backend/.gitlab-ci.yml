@@ -95,6 +95,7 @@ deploy:
     - chmod 644 ~/.ssh/known_hosts
   script:
     - scp ./backend/sausage-store-backend.service $ENV_USER@$ENV_HOST:/home/$ENV_USER/sausage-store-backend.service
+    - scp $PSQL $ENV_USER@$ENV_HOST:/home/$ENV_USER/psql.env
     - > 
       ssh $ENV_USER@$ENV_HOST
       "export "CURRENT_VERSION=${VERSION}"; 

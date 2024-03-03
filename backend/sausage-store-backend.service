@@ -8,12 +8,7 @@ WorkingDirectory=/var/sausage-store/
 Environment=LOG_PATH=/var/sausage-store/
 Environment=REPORT_PATH=/var/sausage-store/reports/
 
-Environment=PSQL_USER=$PSQL_USER
-Environment=PSQL_PASSWORD="Testusr1234"
-Environment=PSQL_HOST="rc1d-37jmsli3qkokbf7v.mdb.yandexcloud.net"
-Environment=PSQL_DBNAME="std-025-75"
-Environment=PSQL_PORT="6432"
-
+EnvironmentFile=/home/student/psql.env
 Environment=SPRING_DATASOURCE_URL="jdbc:postgresql://${PSQL_HOST}:${PSQL_PORT}/${PSQL_DBNAME}"
 Environment=SPRING_DATASOURCE_USERNAME="${PSQL_USER}"
 Environment=SPRING_DATASOURCE_PASSWORD="${PSQL_PASSWORD}"
