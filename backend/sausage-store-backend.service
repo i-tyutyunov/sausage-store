@@ -13,6 +13,13 @@ Environment=SPRING_DATASOURCE_URL="jdbc:postgresql://${PSQL_HOST}:${PSQL_PORT}/$
 Environment=SPRING_DATASOURCE_USERNAME="${PSQL_USER}"
 Environment=SPRING_DATASOURCE_PASSWORD="${PSQL_PASSWORD}"
 
+Environment=MONGO_USER="std-025-75"
+Environment=MONGO_PASSWORD="Testusr1234"
+Environment=MONGO_HOST="rs01/rc1d-373rb11d8uq2e4b5.mdb.yandexcloud.net"
+Environment=MONGO_DATABASE="std-025-75"
+
+Environment=SPRING_DATA_MONGODB_URI="mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:27018/${MONGO_DATABASE}?tls=true"
+
 ExecStart=/usr/lib/jvm/java-16-openjdk-amd64/bin/java -jar /opt/sausage-store/bin/sausage-store.jar
 [Install]
 WantedBy=multi-user.target
