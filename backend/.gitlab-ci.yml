@@ -96,6 +96,7 @@ deploy:
   script:
     - scp ./backend/sausage-store-backend.service $ENV_USER@$ENV_HOST:/home/$ENV_USER/sausage-store-backend.service
     - scp $PSQL $ENV_USER@$ENV_HOST:/home/$ENV_USER/psql.env
+    - scp $MONGO $ENV_USER@$ENV_HOST:/home/$ENV_USER/mongo.env
     - > 
       ssh $ENV_USER@$ENV_HOST
       "export "CURRENT_VERSION=${VERSION}"; 
