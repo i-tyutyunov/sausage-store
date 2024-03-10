@@ -1,26 +1,13 @@
-# /bin/bash
+#! /bin/bash
 set -xe
-
-check_certificate_existence() {
-    keytool -list -keystore /etc/ssl/certs/java/cacerts -alias yandex -storepass changeit >/dev/null 2>&1
-    return $?
-}
-
-if ! check_certificate_existence; then
-  wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" -O ~/YandexInternalRootCA.crt
-  sudo keytool -importcert \
-               -file ~/YandexInternalRootCA.crt \
-               -alias yandex \
-               -cacerts \
-               -storepass changeit \
-               -noprompt
-fi
-
-sudo cp -rf sausage-store-backend.service /etc/systemd/system/sausage-store-backend.service
-
-cd /opt/sausage-store/bin
-sudo curl -u ${NEXUS_REPO_USER}:${NEXUS_REPO_PASS} -o sausage-store.jar \
-${NEXUS_REPO_URL}/repository/${NEXUS_REPO_BACKEND_NAME}/com/yandex/practicum/devops/sausage-store/${VERSION}/sausage-store-${VERSION}.jar
-
-sudo systemctl daemon-reload
-sudo systemctl restart sausage-store-backend
+sudo docker login -u ${CI_REGISTRY_USER} -p${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+sudo docker network create -d bridge sausage_network || true
+sudo docker rm -f sausage-backend || true
+sudo docker run --rm -d --name sausage-backend \
+     --env SPRING_DATASOURCE_URL="${SPRING_DATASOURCE_URL}" \
+     --env SPRING_DATASOURCE_USERNAME="${SPRING_DATASOURCE_USERNAME}" \
+     --env SPRING_DATASOURCE_PASSWORD="${SPRING_DATASOURCE_PASSWORD}" \
+     --env SPRING_DATA_MONGODB_URI="${SPRING_DATA_MONGODB_URI}" \
+     --env REPORT_PATH="/var/sausage-store/reports/" \
+     --network=sausage_network \
+     "${CI_REGISTRY_IMAGE}"/sausage-backend:latest
