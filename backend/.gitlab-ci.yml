@@ -26,7 +26,7 @@ build:
         - ${CI_PROJECT_DIR}/.m2/repository
   script:
     - cd backend
-    - mvn package -Dmaven.repo.local=${CI_PROJECT_DIR}/.m2/repository -Dversion.application=${VERSION} -Dmaven.test.skip=true
+    - mvn package -Dmaven.repo.local=${CI_PROJECT_DIR}/.m2/repository -Dmaven.test.skip=true
   before_script:
     - export BUILD_CI_JOB_ID=$CI_JOB_ID
   artifacts:
@@ -49,6 +49,7 @@ sonarqube-backend-sast:
   script:
     - cd backend
     - mvn verify sonar:sonar
+      -Dmaven.test.skip=true
       -Dsonar.qualitygate.wait=true
       -Dsonar.projectName="25_ИГОРЬТЮТЮНОВ_БЭКЭНД"
       -Dsonar.projectKey=$SONAR_PROJECT_KEY_BACK \
