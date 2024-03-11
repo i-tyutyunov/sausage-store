@@ -26,7 +26,7 @@ build:
         - ${CI_PROJECT_DIR}/.m2/repository
   script:
     - cd backend
-    - mvn package -Dmaven.repo.local=${CI_PROJECT_DIR}/.m2/repository
+    - mvn package -Dmaven.repo.local=${CI_PROJECT_DIR}/.m2/repository -Dversion.application=${VERSION} -Dmaven.test.skip=true
   before_script:
     - export BUILD_CI_JOB_ID=$CI_JOB_ID
   artifacts:
