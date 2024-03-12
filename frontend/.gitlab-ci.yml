@@ -84,7 +84,7 @@ deploy:
   script:
     - ssh $ENV_USER@$ENV_HOST "mkdir -p /tmp/${CI_PROJECT_DIR}/frontend/"
     - scp ./frontend/default.conf $ENV_USER@$ENV_HOST:/tmp/${CI_PROJECT_DIR}/frontend/default.conf
-    - ssh $ENV_USER@$ENV_HOST "chmod 666 /tmp/${CI_PROJECT_DIR}/frontend/default.conf"
+    - ssh $ENV_USER@$ENV_HOST "chmod 777 /tmp/${CI_PROJECT_DIR}/frontend/default.conf"
     - envsubst < ./frontend/deploy.sh | ssh $ENV_USER@$ENV_HOST /bin/bash -s
 
 
