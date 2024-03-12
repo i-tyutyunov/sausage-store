@@ -15,21 +15,16 @@ stages:
 
 build:
   stage: build
-  cache:
-    - key:
-        files:
-          - frontend/package.json
-      paths:
-        - ${CI_PROJECT_DIR}/frontend/node_modules
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    entrypoint: [""]
   script:
-    - cd frontend
-    - npm install
-    - npm run build
-  before_script:
-    - export BUILD_CI_JOB_ID=$CI_JOB_ID
-  artifacts:
-    paths:
-      - frontend/dist/frontend
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}/frontend"
+      --dockerfile "${CI_PROJECT_DIR}/frontend/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/sausage-frontend:$CI_COMMIT_SHA"
+      --build-arg VERSION=$VERSION
+      --cache=true
 
 
 sonarqube-frontend-sast:
@@ -52,15 +47,17 @@ sonarqube-frontend-sast:
 
 
 release:
+  variables:
+    GIT_STRATEGY: none
+  image:
+    name: gcr.io/go-containerregistry/crane:debug
+    entrypoint: [ "" ]
+  cache: [ ]
   stage: release
-  needs:
-    - build
+  before_script:
+    - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - cd frontend/dist
-    - tar czvf sausage-store-${VERSION}.tar.gz frontend
-    - >
-      curl -v -u "${NEXUS_REPO_USER}:${NEXUS_REPO_PASS}" 
-      -T sausage-store-${VERSION}.tar.gz ${NEXUS_REPO_URL}/repository/${NEXUS_REPO_FRONTEND_NAME}/${VERSION}/
+    - crane tag $CI_REGISTRY_IMAGE/sausage-frontend:$CI_COMMIT_SHA latest
 
 deploy:
   stage: deploy
@@ -80,14 +77,11 @@ deploy:
     - chmod 700 ~/.ssh
     - ssh-keyscan std-025-84.praktikum-services.tech > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+    - command -v envsubst >/dev/null || ( apt-get update -y && apt-get install gettext-base -y )
   script:
-    - ssh $ENV_USER@$ENV_HOST
-      "export "VERSION=${VERSION}";
-      export "NEXUS_REPO_URL=${NEXUS_REPO_URL}";
-      export "NEXUS_REPO_FRONTEND_NAME=${NEXUS_REPO_FRONTEND_NAME}";
-      export "NEXUS_REPO_USER=${NEXUS_REPO_USER}";
-      export "NEXUS_REPO_PASS=${NEXUS_REPO_PASS}";
-      /bin/bash -s " < ./frontend/deploy.sh
+    - ssh $ENV_USER@$ENV_HOST "mkdir -p /tmp/${CI_PROJECT_DIR}/frontend/"
+    - scp ./frontend/default.conf $ENV_USER@$ENV_HOST:/tmp/${CI_PROJECT_DIR}/frontend/default.conf
+    - envsubst < ./frontend/deploy.sh | ssh $ENV_USER@$ENV_HOST /bin/bash -s
 
 
 notify:
