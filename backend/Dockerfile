@@ -10,11 +10,12 @@ RUN wget -O  YandexInternalRootCA.crt https://storage.yandexcloud.net/cloud-cert
 FROM bellsoft/liberica-runtime-container:jre-17-slim-musl
 ARG VERSION=${VERSION}
 ARG REPORT_PATH="/var/sausage-store/reports/"
+ARG KEY_STORE_PASS=${KEY_STORE_PASS}
 WORKDIR /app
 RUN mkdir -p $REPORT_PATH
 COPY --from=builder /usr/src/app/YandexInternalRootCA.crt .
 RUN keytool -importcert -file YandexInternalRootCA.crt \
-    -alias yandex -cacerts -storepass changeit -noprompt \
+    -alias yandex -cacerts -storepass ${KEY_STORE_PASS} -noprompt \
     && rm -rf YandexInternalRootCA.crt \
     && addgroup --system jaruser \
     && adduser -S -s /bin/false -G jaruser jaruser -D -H

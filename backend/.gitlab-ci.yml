@@ -25,6 +25,7 @@ build:
       --dockerfile "${CI_PROJECT_DIR}/backend/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}/sausage-backend:$CI_COMMIT_SHA"
       --build-arg VERSION=$VERSION
+      --build-arg KEY_STORE_PASS=$KEY_STORE_PASS
       --cache=true
 
 sonarqube-backend-sast:
