@@ -6,7 +6,7 @@ sudo docker network create -d bridge sausage_network || true
 sudo docker rm -f sausage-frontend || true
 sudo docker run -d --name sausage-frontend \
      -v "/home/student/default.conf:/etc/nginx/conf.d/default.conf" \
-     -p 9000:80 \
+     -p 8080:80 \
      --restart=always  \
      --network=sausage_network \
      "${CI_REGISTRY_IMAGE}/sausage-frontend:latest"
