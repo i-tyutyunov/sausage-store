@@ -23,8 +23,8 @@ public class ReportSaverTask {
         this.reportRepository = reportRepository;
     }
 
-    @Scheduled(fixedDelay = 300000)
-    public void saveReport() {
+    @Scheduled(fixedDelay = 60000)
+    public void saveReport() throws Exception {
         log.info("Saving report");
         Report report =
                 restTemplate.getForObject("https://d5dg7f2abrq3u84p3vpr.apigw.yandexcloud.net/report", Report.class);
