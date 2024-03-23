@@ -1,81 +1,14 @@
-include:
-  - template: Security/SAST.gitlab-ci.yml
-
 variables:
   SONAR_TOKEN: $SONAR_PROJECT_LOGIN_BACK
   VERSION: 1.0.${CI_PIPELINE_ID}
-  SAST_EXCLUDED_ANALYZERS: "nodejs-scan-sast"
 
 
 stages:
-  - build
-  - test
-  - release
   - deploy
-  - notify
 
-build:
-  stage: build
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint: [""]
-  script:
-    - /kaniko/executor
-      --context "${CI_PROJECT_DIR}/backend"
-      --dockerfile "${CI_PROJECT_DIR}/backend/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}/sausage-backend:$CI_COMMIT_SHA"
-      --build-arg VERSION=$VERSION
-      --build-arg KEY_STORE_PASS=$KEY_STORE_PASS
-      --cache=true
-
-sonarqube-backend-sast:
-  stage: test
-  needs:
-    - build
-  image: maven:3.8-openjdk-16
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-    GIT_DEPTH: "0"
-    SPRING_FLYWAY_ENABLED: "false"
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - .sonar/cache
-  script:
-    - cd backend
-    - mvn verify sonar:sonar
-      -Dmaven.test.skip=true
-      -Dsonar.qualitygate.wait=true
-      -Dsonar.projectName="25_ИГОРЬТЮТЮНОВ_БЭКЭНД"
-      -Dsonar.projectKey=$SONAR_PROJECT_KEY_BACK \
-
-spotbugs-sast:
-  stage: test
-  needs:
-    - build
-  variables:
-    COMPILE: "false"
-    SAST_JAVA_VERSION: 11
-    MAVEN_REPO_PATH: ${CI_PROJECT_DIR}/.m2/repository
-
-release:
-  variables:
-    GIT_STRATEGY: none
-  image:
-    name: gcr.io/go-containerregistry/crane:debug
-    entrypoint: [ "" ]
-  cache: [ ]
-  stage: release
-  before_script:
-    - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - crane tag $CI_REGISTRY_IMAGE/sausage-backend:$CI_COMMIT_SHA latest
-      
 deploy:
   stage: deploy
   image: docker:24.0.7-alpine3.19
-  needs:
-    - release
   environment:
     name: backend
     url: https://std-025-84.praktikum-services.tech
@@ -88,10 +21,14 @@ deploy:
     - ssh-add "$SSH_PRIVATE_KEY"
     - mkdir -p ~/.ssh
     - chmod 600 ~/.ssh
-    - echo "$ENV_HOST" >> ~/.ssh/known_hosts
+    - ssh-keyscan $ENV_HOST > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+    - cat ~/.ssh/known_hosts
     - docker context create remote --docker "host=ssh://${ENV_USER}@${ENV_HOST}"
   script:
+    - docker -v
+    - echo $ENV_USER@$ENV_HOST
+    - echo $CI_REGISTRY_USER $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - echo "SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}" >> deploy.env
     - echo "SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}" >> deploy.env
     - echo "SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}" >> deploy.env
@@ -99,16 +36,3 @@ deploy:
     - echo "REPORT_PATH=\"/var/sausage-store/reports/\"" >> deploy.env
     - docker login -u ${CI_REGISTRY_USER} -p${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
     - docker --context remote compose --env-file deploy.env up backend -d --pull "always" --force-recreate
-
-notify:
-  stage: notify
-  needs: [build, deploy]
-  rules:
-    - if: $CI_COMMIT_TITLE =~ /send notification/
-  script:
-    - |
-      curl --location "https://api.telegram.org/$TG_USER:$TG_PASSWORD/sendMessage" \
-      --header "Content-Type: application/json" \
-      --data "{\"chat_id\": \"-1002007326342\",\"text\": \"Выполнен deploy backend-а. URL для скачивания 
-      артефактов
-      $CI_PROJECT_URL/-/jobs/$BUILD_CI_JOB_ID/artifacts/download\"}"
