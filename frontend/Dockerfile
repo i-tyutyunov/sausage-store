@@ -5,8 +5,7 @@ COPY . .
 RUN npm install && npm run build
 
 # Запуск
-FROM nginx:stable-alpine3.17-slim
-WORKDIR /app
-COPY ./default.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /usr/src/app/dist/frontend ./frontend
+FROM nginxproxy/nginx-proxy:1.3.1-alpine
+COPY --from=builder /usr/src/app/nginx.tmpl /app/nginx.tmpl
+COPY --from=builder /usr/src/app/dist/frontend /usr/share/nginx/html
 EXPOSE 80
