@@ -98,7 +98,7 @@ deploy:
     - echo "SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}" >> deploy.env
     - echo "REPORT_PATH=\"/var/sausage-store/reports/\"" >> deploy.env
     - docker login -u ${CI_REGISTRY_USER} -p${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
-    - docker --context remote compose --env-file deploy.env up backend -d --pull "always" --no-recreate
+    - docker --context remote compose --env-file deploy.env up backend-blue -d --pull "always" --no-recreate
 
 notify:
   stage: notify
