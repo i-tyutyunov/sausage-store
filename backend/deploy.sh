@@ -1,6 +1,11 @@
 #/bin/bash
 
 NUM_INSTANCES=1
+
+echo "123"
+echo $NUM_INSTANCES
+echo "321"
+exit
 APP_NAME="sausage-store-backend"
 
 echo "Determine the current version of the application (blue or green)"
