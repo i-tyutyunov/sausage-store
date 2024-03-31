@@ -15,8 +15,8 @@ for instance in $(docker ps --filter "name=$APP_NAME-$NEW_VERSION-$instance" --f
     docker rm -f $instance
 done
 
-echo "CURRENT_VERSION:" $CURRENT_VERSION
-echo "NEW_VERSION:" $NEW_VERSION
+echo "CURRENT_VERSION: $CURRENT_VERSION"
+echo "NEW_VERSION: $NEW_VERSION"
 
 docker login -u ${CI_REGISTRY_USER} -p${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
 docker compose --env-file deploy.env up "backend-$NEW_VERSION" --scale "backend-$NEW_VERSION=$NUM_INSTANCES" -d --pull "always" --no-recreate

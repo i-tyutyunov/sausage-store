@@ -73,8 +73,7 @@ release:
       
 deploy:
   stage: deploy
-  needs:
-    - release
+  needs: []
   environment:
     name: backend
     url: https://std-025-84.praktikum-services.tech
