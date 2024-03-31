@@ -98,7 +98,8 @@ deploy:
     - echo "REPORT_PATH=\"/var/sausage-store/reports/\"" >> deploy.env
     - scp deploy.env $ENV_USER@$ENV_HOST:~/
     - scp docker-compose.yml $ENV_USER@$ENV_HOST:~/
-    - envsubst < ./backend/deploy.sh | ssh $ENV_USER@$ENV_HOST /bin/bash -s
+    - envsubst < ./backend/deploy.sh > deploy.sh
+    - scp deploy.sh $ENV_USER@$ENV_HOST:~/
 
 notify:
   stage: notify
