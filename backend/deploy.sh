@@ -19,7 +19,7 @@ echo "CURRENT_VERSION:" $CURRENT_VERSION
 echo "NEW_VERSION:" $NEW_VERSION
 
 docker login -u ${CI_REGISTRY_USER} -p${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
-docker --context remote compose --env-file deploy.env up backend-green --scale backend-$NEW_VERSION=$NUM_INSTANCES -d --pull "always" --no-recreate
+docker compose --env-file deploy.env up "backend-$NEW_VERSION" --scale "backend-$NEW_VERSION=$NUM_INSTANCES" -d --pull "always" --no-recreate
 
 while true; do
     health_check_passed=true
@@ -31,7 +31,7 @@ while true; do
         fi
     done
 
-    if $health_check_passed; then
+    if [ $health_check_passed ]; then
         echo "Health Check passed for all $NEW_VERSION instances."
         break
     fi
