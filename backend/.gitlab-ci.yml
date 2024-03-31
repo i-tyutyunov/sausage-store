@@ -98,8 +98,12 @@ deploy:
     - echo "REPORT_PATH=\"/var/sausage-store/reports/\"" >> deploy.env
     - scp deploy.env $ENV_USER@$ENV_HOST:~/
     - scp docker-compose.yml $ENV_USER@$ENV_HOST:~/
-    - envsubst < ./backend/deploy.sh > deploy.sh
-    - scp deploy.sh $ENV_USER@$ENV_HOST:~/
+    - >
+      ssh $ENV_USER@$ENV_HOST
+      "export "CI_REGISTRY_USER=${CI_REGISTRY_USER}"; 
+      export "CI_REGISTRY_PASSWORD=${CI_REGISTRY_PASSWORD}";
+      export "CI_REGISTRY=${CI_REGISTRY}"; 
+      /bin/bash -s " < ./backend/deploy.sh
 
 notify:
   stage: notify
