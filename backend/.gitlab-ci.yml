@@ -96,12 +96,14 @@ deploy:
     - echo "SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}" >> deploy.env
     - echo "SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}" >> deploy.env
     - echo "REPORT_PATH=\"/var/sausage-store/reports/\"" >> deploy.env
-    - echo "run"
-    - echo "CI_REGISTRY_USER=${CI_REGISTRY_USER}" >> deploy.env
-    - echo "CI_REGISTRY_PASSWORD=${CI_REGISTRY_PASSWORD}" >> deploy.env
-    - echo "CI_REGISTRY=${CI_REGISTRY}" >> deploy.env
-    - scp deploy.env $ENV_USER@$ENV_HOST:~/
-    - sleep 600
+    - scp deploy.env $ENV_USER@$ENV_HOST:~/sausage-store/backend
+    - scp docker-compose.yml $ENV_USER@$ENV_HOST:~/sausage-store/backend
+    - ssh $ENV_USER@$ENV_HOST 
+      "export CI_REGISTRY_USER=${CI_REGISTRY_USER};
+      export CI_REGISTRY_PASSWORD=${CI_REGISTRY_PASSWORD};
+      export CI_REGISTRY=${CI_REGISTRY};
+      cd ~/sausage-store/backend;
+      /bin/bash ./deploy.env"
 notify:
   stage: notify
   needs: [build, deploy]
