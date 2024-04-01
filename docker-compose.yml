@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  backend:
+  backend: &backend
     image: ${CI_REGISTRY_IMAGE}/sausage-backend:latest
     environment:
       VIRTUAL_HOST: "backend"
@@ -12,8 +12,20 @@ services:
       SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
       REPORT_PATH: "/var/sausage-store/reports/"
     restart: always
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 6
     networks:
       - sausage-store
+
+  backend-green:
+    <<: *backend
+    
+  backend-blue:
+    <<: *backend
 
   backend-report:
     image: ${CI_REGISTRY_IMAGE}/sausage-backend-report:latest
