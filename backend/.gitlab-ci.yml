@@ -90,14 +90,9 @@ deploy:
     - chmod 644 ~/.ssh/known_hosts
     - command -v envsubst >/dev/null || ( apt-get update -y && apt-get install gettext-base -y )
   script:
-    - echo "CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE}" >> deploy.env
-    - echo "SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}" >> deploy.env
-    - echo "SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}" >> deploy.env
-    - echo "SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}" >> deploy.env
-    - echo "SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}" >> deploy.env
-    - echo "REPORT_PATH=\"/var/sausage-store/reports/\"" >> deploy.env
+    - echo "CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE}" >> $BACKEND_DEPLOY
     - ssh $ENV_USER@$ENV_HOST "mkdir -p ~/sausage-store"
-    - scp deploy.env $ENV_USER@$ENV_HOST:~/sausage-store
+    - scp $BACKEND_DEPLOY $ENV_USER@$ENV_HOST:~/sausage-store
     - scp docker-compose.yml $ENV_USER@$ENV_HOST:~/sausage-store
     - ssh $ENV_USER@$ENV_HOST 
       "export CI_REGISTRY_USER=${CI_REGISTRY_USER};
