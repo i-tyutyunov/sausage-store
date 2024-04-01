@@ -32,7 +32,7 @@ while true; do
         fi
     done
 
-    if [ $health_check_passed ]; then
+    if $health_check_passed ; then
         echo "Health Check passed for all $NEW_VERSION instances."
         break
     fi
