@@ -6,7 +6,8 @@ APP_NAME="sausage-store-backend"
 echo "Determine the current version of the application (blue or green)"
 CURRENT_VERSION=$(docker ps --filter "name=sausage-store-backend-" --format "{{.Names}}" | grep -oE "blue|green" |head -n1)
 NEW_VERSION="green"
-if [ $CURRENT_VERSION == $NEW_VERSION ]; then
+
+if [ "$CURRENT_VERSION" == "$NEW_VERSION" ]; then
     NEW_VERSION="blue"
 fi
 
