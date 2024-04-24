@@ -73,6 +73,7 @@ release:
       
 deploy:
   stage: deploy
+  image: docker:24.0.7-alpine3.19
   needs:
     - release
   environment:
@@ -81,7 +82,7 @@ deploy:
   rules:
     - when: manual
   before_script:
-    - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
+    - apk add docker-cli-compose openssh-client
     - eval $(ssh-agent -s)
     - chmod 400 "$SSH_PRIVATE_KEY"
     - ssh-add "$SSH_PRIVATE_KEY"
@@ -89,23 +90,16 @@ deploy:
     - chmod 600 ~/.ssh
     - ssh-keyscan $ENV_HOST > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - command -v envsubst >/dev/null || ( apt-get update -y && apt-get install gettext-base -y )
+    - docker context create remote --docker "host=ssh://${ENV_USER}@${ENV_HOST}"
   script:
-    - echo "CI_REGISTRY_IMAGE=${CI_REGISTRY_IMAGE}" >> deploy.env
     - echo "SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}" >> deploy.env
     - echo "SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}" >> deploy.env
     - echo "SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}" >> deploy.env
     - echo "SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}" >> deploy.env
     - echo "REPORT_PATH=\"/var/sausage-store/reports/\"" >> deploy.env
-    - ssh $ENV_USER@$ENV_HOST "mkdir -p ~/sausage-store"
-    - scp deploy.env $ENV_USER@$ENV_HOST:~/sausage-store
-    - scp docker-compose.yml $ENV_USER@$ENV_HOST:~/sausage-store
-    - ssh $ENV_USER@$ENV_HOST 
-      "export CI_REGISTRY_USER=${CI_REGISTRY_USER};
-      export CI_REGISTRY_PASSWORD=${CI_REGISTRY_PASSWORD};
-      export CI_REGISTRY=${CI_REGISTRY};
-      cd ~/sausage-store;
-      /bin/bash -s " < ./backend/deploy.sh
+    - docker login -u ${CI_REGISTRY_USER} -p${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+    - docker --context remote compose --env-file deploy.env up backend -d --pull "always" --force-recreate
+
 notify:
   stage: notify
   needs: [build, deploy]
